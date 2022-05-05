@@ -12,94 +12,84 @@ const myBadAssGarage = window.myBadAssGarage;
 // ///
 // Get all the cars
 // ///
+// how i get all the cars?
 
-// ✅ 1. Select the car list div (Stimulus Target)
-
-// ✅ 2. No event listener, we get the car when the refresh (= connect)
-// Create a method getCars in the controller
-
-// ✅ 2.5 Fetch the wagon-garage API (get array of cars)
-
-// ✅ 3. For each cars, insert a car cards into the car list div
+// use Yanns cool "thingy" sch
+// define targets (CAR LIST!!)
+// fetch cars (inside connect :)
+ // display cars in car list
 
 // ///
 // Add a new car
 // ///
+// link targets (5 types - brand, model, plate, owner add car button)
+// define the data action upon clicking the button
+// fetch that stuff we need ^^^ (POST)
+// display car list (get all cars again, like we did before...)
 
-// ✅ 1. Select 4 inputs (maybe the add a car?) (Stimulus Target)
-
-// ✅ 2. Listen to a click on "add a car" (Stimulus Action)
-
-// ✅ 2.5 POST request to add the car in the garage API
-
-// ✅ Display the cars: do the "Get all the cars" step!
-
-// //////////////////////
+// ///////////////t///////
 // Code
 // //////////////////////
 // Tips: use 'sch' shortcut to build the controller
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = [ 'sickGarage', 'brand', 'model', 'owner', 'plate' ]
-
+  static targets = [ 'list', 'brand', 'model', 'owner', 'plate' ]
+  
   connect() {
-    this.url = `https://wagon-garage-api.herokuapp.com/${myBadAssGarage}/cars`;
     console.log('Hello from garage_controller.js')
-    console.log(this.sickGarageTarget)
+    // console.log(this.testTarget)
     this.getCars();
   }
 
   getCars() {
-    console.log("getCars");
-    fetch(this.url)
-      .then(response => response.json())
-      .then((data) => {
-        console.log(data); // an array of objects
-        this.displayCars(data);
-      })
+    const url = 'https://wagon-garage-api.herokuapp.com/krazy-858/cars'
+    fetch(url)
+    .then(response => response.json())
+    .then((data) => {
+      console.log(data)
+      this.displayCars(data)
+    })
+  }
+  
+  displayCars(cars) {
+    this.listTarget.innerHTML = "";
+    cars.forEach((car) => {
+      this.listTarget.insertAdjacentHTML('beforeend', 
+      `<div class="car">
+      <div class="car-image">
+      <img src="http://loremflickr.com/280/280/${car.brand} ${car.model}" />
+      </div>
+      <div class="car-info">
+      <h4>${car.brand} ${car.model}</h4>
+      <p><strong>Owner:</strong> ${car.owner}</p>
+      <p><strong>Plate:</strong> ${car.plate}</p>
+      </div>
+      </div>`
+      )
+    })
   }
 
-  addCar(event) {
+  submit(event) {
     event.preventDefault()
-    const car = {
+    const carData = {
       brand: this.brandTarget.value,
       model: this.modelTarget.value,
       owner: this.ownerTarget.value,
       plate: this.plateTarget.value
-    };
-
-    const options = { 
-      method: "POST", 
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(car)
     }
-
-    fetch(this.url, options)
+    const url = "https://wagon-garage-api.herokuapp.com/krazy-858/cars"
+    const options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json"},
+      body: JSON.stringify(carData)
+    }
+    fetch(url, options)
       .then(response => response.json())
       .then((data) => {
         console.log(data)
-        // display all cars
-        this.sickGarageTarget.innerHTML = "";
         this.getCars();
       })
   }
-
-  displayCars(cars) {
-    cars.forEach((car) => {
-      this.sickGarageTarget.insertAdjacentHTML(
-        "beforeend",
-        `<div class="car">
-          <div class="car-image">
-            <img src="http://loremflickr.com/280/280/${car.brand} ${car.model}" />
-          </div>
-          <div class="car-info">
-            <h4>${car.brand} ${car.model}</h4>
-            <p><strong>Owner:</strong>${car.owner}</p>
-            <p><strong>Plate:</strong>${car.plate}</p>
-          </div>
-        </div>`
-        );
-    });
-  }
 }
+
